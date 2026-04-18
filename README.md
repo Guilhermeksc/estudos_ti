@@ -45,6 +45,7 @@ Na raiz:
 - `npm run build:backend`
 - `npm run build:all`
 - `npm run hostinger:site:prepare`
+- `npm run hostinger:api:prepare`
 
 ## Deploy na Hostinger
 
@@ -74,6 +75,21 @@ Automacao opcional:
   - `HOSTINGER_FTP_PASSWORD`
 
 Observacao: o backend Next.js deve rodar separado como app Node.js no Hostinger (idealmente em subdominio como `api.gkdevstudio.com`).
+
+## Publicacao da API Next.js (Hostinger Node)
+
+Para o backend Next.js em app Node separado:
+
+1. Execute `npm run hostinger:api:prepare`.
+2. O pacote final ficara em `deploy/hostinger/api/`.
+3. Publique esse conteudo no app Node do Hostinger.
+4. Entry file do app: `server.js`.
+
+Alternativa pelo painel de build Hostinger (sem bundle pronto):
+
+- Comando de construcao: `npm run build:backend`
+- Diretorio de saida: `backend/.next`
+- Arquivo de entrada: `backend/.next/standalone/backend/server.js`
 
 ## Observacao
 

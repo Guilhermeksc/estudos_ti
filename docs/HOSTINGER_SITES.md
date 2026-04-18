@@ -9,6 +9,20 @@ Publicar o frontend Angular (`frontend/`) no domínio principal `gkdevstudio.com
 - `gkdevstudio.com` -> frontend estatico (Angular)
 - `api.gkdevstudio.com` -> backend Node.js (Next.js) em app separado
 
+## Configuracao no painel (resumo)
+
+### Frontend Angular (Site)
+
+- Comando de construcao: `npm run hostinger:site:prepare`
+- Diretorio de saida: `dist`
+- Arquivo de entrada: deixar vazio (site estatico)
+
+### Backend Next.js (Node app)
+
+- Comando de construcao: `npm run build:backend`
+- Diretorio de saida: `backend/.next`
+- Arquivo de entrada: `backend/.next/standalone/backend/server.js`
+
 ## Preparar artefato estatico
 
 Na raiz do repositorio:
@@ -50,3 +64,11 @@ Ao fazer push na `main`, o deploy do frontend será executado automaticamente.
 O backend não deve ser publicado em `public_html`.
 
 Execute como aplicação Node.js separada e aponte o frontend para a URL da API (ex.: `https://api.gkdevstudio.com`).
+
+Opcionalmente, para deploy por FTP do bundle pronto:
+
+```bash
+npm run hostinger:api:prepare
+```
+
+Esse comando gera `deploy/hostinger/api/` com entrypoint `server.js`.

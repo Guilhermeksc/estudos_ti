@@ -1,0 +1,36 @@
+name: Deploy Backend Next.js to Hostinger
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare Next.js standalone bundle
+        run: npm run hostinger:api:prepare
+
+      - name: FTP Deploy API bundle to Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTINGER_API_FTP_HOST }}
+          username: ${{ secrets.HOSTINGER_API_FTP_USER }}
+          password: ${{ secrets.HOSTINGER_API_FTP_PASSWORD }}
+          protocol: ftp
+          local-dir: ./deploy/hostinger/api/
+          server-dir: ./
