@@ -30,18 +30,9 @@ jobs:
       - name: Build Angular frontend
         run: npm run build:frontend
 
-      - name: Resolve deploy directory
-        id: deploy_dir
-        run: |
-          if [ -d "frontend/dist/browser" ]; then
-            echo "path=frontend/dist/browser/" >> "$GITHUB_OUTPUT"
-          else
-            echo "path=frontend/dist/" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Ensure SPA .htaccess exists
         run: |
-          DEPLOY_DIR="${{ steps.deploy_dir.outputs.path }}"
+          DEPLOY_DIR="frontend/dist/browser/"
           if [ ! -f "${DEPLOY_DIR}.htaccess" ]; then
             cat > "${DEPLOY_DIR}.htaccess" <<'HTACCESS'
           Options -MultiViews
@@ -51,6 +42,10 @@ jobs:
           HTACCESS
           fi
 
+      - name: Validate build output
+        run: |
+          test -f frontend/dist/browser/index.html
+
       - name: FTP Deploy to Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -58,5 +53,5 @@ jobs:
           username: ${{ secrets.HOSTINGER_FTP_USER }}
           password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
           protocol: ftp
-          local-dir: ${{ steps.deploy_dir.outputs.path }}
+          local-dir: frontend/dist/browser/
           server-dir: /public_html/
