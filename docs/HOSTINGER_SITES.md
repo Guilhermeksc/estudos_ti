@@ -17,6 +17,11 @@ Publicar o frontend Angular (`frontend/`) no domínio principal `gkdevstudio.com
 - Diretorio de saida: `dist`
 - Arquivo de entrada: deixar vazio (site estatico)
 
+Observacao importante sobre monorepo:
+
+- Se o projeto no painel Hostinger estiver com raiz em `frontend/`, use `dist`.
+- Se a raiz estiver no repositorio inteiro, use `frontend/dist`.
+
 ### Backend Next.js (Node app)
 
 - Comando de construcao: `npm run build:backend`

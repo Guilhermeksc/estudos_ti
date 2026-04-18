@@ -7,7 +7,7 @@
     "backend"
   ],
   "scripts": {
-    "build": "npm run build:frontend",
+    "build": "npm run hostinger:site:prepare",
     "dev:frontend": "npm run start --workspace frontend",
     "dev:backend": "npm run dev --workspace backend",
     "build:frontend": "npm run build --workspace frontend",
