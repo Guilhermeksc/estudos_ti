@@ -1,6 +1,6 @@
 <section class="login-wrapper">
   <h1>Login</h1>
-  <p class="subtitle">Autenticação integrada à API em api.gkdevstudio.com (proxy para cemos2028.com).</p>
+  <p class="subtitle">Autenticação direta no backend de produção em cemos2028.com.</p>
 
   <form [formGroup]="form" (ngSubmit)="onSubmitLogin()" class="login-form">
     <label>
@@ -37,8 +37,8 @@
 
   <section class="token-preview" *ngIf="loginResponse as response">
     <h2>Resposta de autenticação</h2>
-    <p><strong>Access:</strong> {{ response.accessToken | slice:0:40 }}...</p>
-    <p><strong>Refresh:</strong> armazenado em cookie HttpOnly na API.</p>
+    <p><strong>Access:</strong> {{ response.access | slice:0:40 }}...</p>
+    <p><strong>Refresh:</strong> {{ response.refresh | slice:0:40 }}...</p>
     <p *ngIf="response.user"><strong>Perfil:</strong> {{ response.user.perfil }}</p>
   </section>
 </section>

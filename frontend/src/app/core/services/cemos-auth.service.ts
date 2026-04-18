@@ -11,27 +11,21 @@ export interface CemosUser {
 }
 
 export interface CemosLoginResponse {
-  accessToken: string;
+  access: string;
+  refresh: string;
   user?: CemosUser;
 }
 
 @Injectable({ providedIn: 'root' })
 export class CemosAuthService {
-  private readonly baseUrl =
-    typeof window !== 'undefined' && window.location.hostname === 'localhost'
-      ? 'http://localhost:3000'
-      : 'https://api.gkdevstudio.com';
+  private readonly baseUrl = 'https://cemos2028.com';
 
   constructor(private readonly http: HttpClient) {}
 
   login(username: string, password: string): Observable<CemosLoginResponse> {
-    return this.http.post<CemosLoginResponse>(
-      `${this.baseUrl}/api/auth/login`,
-      {
-        username,
-        password
-      },
-      { withCredentials: true }
-    );
+    return this.http.post<CemosLoginResponse>(`${this.baseUrl}/api/auth/login/`, {
+      username,
+      password
+    });
   }
 }
