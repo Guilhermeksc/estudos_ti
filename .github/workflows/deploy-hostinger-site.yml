@@ -33,10 +33,10 @@ jobs:
       - name: Resolve deploy directory
         id: deploy_dir
         run: |
-          if [ -d "frontend/dist/frontend/browser" ]; then
-            echo "path=frontend/dist/frontend/browser/" >> "$GITHUB_OUTPUT"
+          if [ -d "frontend/dist/browser" ]; then
+            echo "path=frontend/dist/browser/" >> "$GITHUB_OUTPUT"
           else
-            echo "path=frontend/dist/frontend/" >> "$GITHUB_OUTPUT"
+            echo "path=frontend/dist/" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Ensure SPA .htaccess exists

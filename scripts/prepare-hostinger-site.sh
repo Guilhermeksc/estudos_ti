@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-FRONTEND_DIST="$ROOT_DIR/frontend/dist/frontend"
+FRONTEND_DIST="$ROOT_DIR/frontend/dist"
 TARGET_DIR="$ROOT_DIR/dist"
 
 echo "[1/4] Building frontend workspace..."
