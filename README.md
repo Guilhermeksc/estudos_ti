@@ -43,6 +43,8 @@ Na raiz:
 - `npm run dev:backend`
 - `npm run build:frontend`
 - `npm run build:backend`
+- `npm run build:all`
+- `npm run hostinger:site:prepare`
 
 ## Deploy na Hostinger
 
@@ -54,6 +56,24 @@ Exemplo:
 
 - `app.seudominio.com` -> Angular
 - `api.seudominio.com` ou `www.seudominio.com` -> Next.js
+
+## Publicacao em gkdevstudio.com (Hostinger Sites)
+
+Para o dominio principal no Hostinger Sites, publique o frontend Angular como estatico:
+
+1. Execute `npm run hostinger:site:prepare`.
+2. O pacote final ficara em `deploy/hostinger/site/`.
+3. Publique o conteudo dessa pasta em `public_html/`.
+
+Automacao opcional:
+
+- Workflow pronto em `.github/workflows/deploy-hostinger-site.yml`.
+- Configure os secrets no GitHub:
+  - `HOSTINGER_FTP_HOST`
+  - `HOSTINGER_FTP_USER`
+  - `HOSTINGER_FTP_PASSWORD`
+
+Observacao: o backend Next.js deve rodar separado como app Node.js no Hostinger (idealmente em subdominio como `api.gkdevstudio.com`).
 
 ## Observacao
 

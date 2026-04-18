@@ -11,6 +11,8 @@
     "dev:backend": "npm run dev --workspace backend",
     "build:frontend": "npm run build --workspace frontend",
     "build:backend": "npm run build --workspace backend",
-    "start:backend": "npm run start --workspace backend"
+    "start:backend": "npm run start --workspace backend",
+    "build:all": "npm run build:frontend && npm run build:backend",
+    "hostinger:site:prepare": "bash scripts/prepare-hostinger-site.sh"
   }
 }
