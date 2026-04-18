@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 FRONTEND_DIST="$ROOT_DIR/frontend/dist/frontend"
-TARGET_DIR="$ROOT_DIR/deploy/hostinger/site"
+TARGET_DIR="$ROOT_DIR/dist"
 
 echo "[1/4] Building frontend workspace..."
 cd "$ROOT_DIR"

@@ -62,7 +62,7 @@ Exemplo:
 Para o dominio principal no Hostinger Sites, publique o frontend Angular como estatico:
 
 1. Execute `npm run hostinger:site:prepare`.
-2. O pacote final ficara em `deploy/hostinger/site/`.
+2. O pacote final ficara em `dist/`.
 3. Publique o conteudo dessa pasta em `public_html/`.
 
 Automacao opcional:

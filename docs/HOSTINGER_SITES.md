@@ -21,7 +21,7 @@ Esse comando:
 
 1. roda `build:frontend`
 2. copia os arquivos de `frontend/dist/frontend/`
-3. gera `deploy/hostinger/site/.htaccess` com fallback para SPA
+3. gera `dist/.htaccess` com fallback para SPA
 
 ## Publicacao manual
 
@@ -29,7 +29,7 @@ No Hostinger:
 
 1. Abra o site `gkdevstudio.com`
 2. Entre no Gerenciador de Arquivos ou FTP
-3. Faça upload do conteúdo de `deploy/hostinger/site/` para `public_html/`
+3. Faça upload do conteúdo de `dist/` para `public_html/`
 
 ## Publicacao automatica por GitHub Actions
 
