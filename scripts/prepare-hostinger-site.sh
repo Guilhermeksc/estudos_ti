@@ -14,7 +14,16 @@ rm -rf "$TARGET_DIR"
 mkdir -p "$TARGET_DIR"
 
 echo "[3/4] Copying static artifacts..."
-cp -R "$FRONTEND_DIST"/. "$TARGET_DIR"/
+STATIC_SOURCE="$FRONTEND_DIST"
+if [ -d "$FRONTEND_DIST/browser" ]; then
+	STATIC_SOURCE="$FRONTEND_DIST/browser"
+fi
+
+cp -R "$STATIC_SOURCE"/. "$TARGET_DIR"/
+
+if [ -f "$FRONTEND_DIST/3rdpartylicenses.txt" ]; then
+	cp "$FRONTEND_DIST/3rdpartylicenses.txt" "$TARGET_DIR/3rdpartylicenses.txt"
+fi
 
 echo "[4/4] Creating SPA rewrite .htaccess..."
 cat > "$TARGET_DIR/.htaccess" <<'HTACCESS'
