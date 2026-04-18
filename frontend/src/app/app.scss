@@ -1,0 +1,35 @@
+.layout {
+  min-height: 100vh;
+}
+
+.topbar {
+  background: #111827;
+  color: #f9fafb;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.menu a {
+  text-decoration: none;
+  opacity: 0.85;
+  font-weight: 500;
+}
+
+.menu a.active,
+.menu a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.content {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}

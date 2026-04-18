@@ -1,0 +1,114 @@
+.login-wrapper {
+  max-width: 620px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+h1 {
+  margin: 0 0 0.35rem;
+}
+
+.subtitle {
+  margin: 0 0 1rem;
+  color: #4b5563;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+input {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.65rem;
+}
+
+button {
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+button.secondary {
+  background: #374151;
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.feedback {
+  margin: 0.85rem 0 0;
+  font-size: 0.92rem;
+}
+
+.feedback.success {
+  color: #047857;
+}
+
+.feedback.error {
+  color: #b91c1c;
+}
+
+.feedback.info {
+  color: #1e40af;
+}
+
+.token-preview {
+  margin-top: 1rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.9rem;
+}
+
+.token-preview h2 {
+  margin: 0 0 0.7rem;
+  font-size: 1rem;
+}
+
+.token-preview p {
+  margin: 0.35rem 0;
+  word-break: break-all;
+}
+
+.session-status {
+  margin-top: 1rem;
+  background: #ecfeff;
+  border: 1px solid #a5f3fc;
+  border-radius: 0.5rem;
+  padding: 0.9rem;
+}
+
+.session-status h2 {
+  margin: 0 0 0.45rem;
+  font-size: 1rem;
+}
+
+.session-status p {
+  margin: 0.3rem 0;
+  color: #0f172a;
+}

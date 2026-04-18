@@ -1,0 +1,44 @@
+<section class="login-wrapper">
+  <h1>Login</h1>
+  <p class="subtitle">Autenticação integrada ao backend de produção em cemos2028.com.</p>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmitLogin()" class="login-form">
+    <label>
+      Usuário
+      <input type="text" formControlName="username" placeholder="Digite seu usuário" />
+    </label>
+
+    <label>
+      Senha
+      <input type="password" formControlName="password" placeholder="Digite sua senha" />
+    </label>
+
+    <div class="actions">
+      <button type="submit" [disabled]="loading">{{ loading ? 'Autenticando...' : 'Entrar' }}</button>
+      <button type="button" class="secondary" [disabled]="testing" (click)="onTestIntegration()">
+        {{ testing ? 'Testando...' : 'Testar integração' }}
+      </button>
+    </div>
+  </form>
+
+  <p class="feedback success" *ngIf="successMessage">{{ successMessage }}</p>
+  <p class="feedback error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="feedback info" *ngIf="integrationMessage">{{ integrationMessage }}</p>
+
+  <section class="session-status" *ngIf="isAuthenticated()">
+    <h2>Sessão em memória ativa</h2>
+    <p>
+      Usuário autenticado: <strong>{{ currentUser()?.username || 'não informado' }}</strong>
+      (perfil: {{ currentUser()?.perfil || 'não informado' }}).
+    </p>
+    <p>O token não é salvo em localStorage/sessionStorage.</p>
+    <button type="button" class="secondary" (click)="clearSession()">Limpar sessão local</button>
+  </section>
+
+  <section class="token-preview" *ngIf="loginResponse as response">
+    <h2>Resposta de autenticação</h2>
+    <p><strong>Access:</strong> {{ response.access | slice:0:40 }}...</p>
+    <p><strong>Refresh:</strong> {{ response.refresh | slice:0:40 }}...</p>
+    <p *ngIf="response.user"><strong>Perfil:</strong> {{ response.user.perfil }}</p>
+  </section>
+</section>

@@ -1,0 +1,29 @@
+<ng-container *ngIf="area() as currentArea; else notFound">
+  <section class="header">
+    <a routerLink="/areas" class="back-link">← Voltar para áreas</a>
+    <h1>{{ currentArea.title }}</h1>
+    <p>{{ currentArea.description }}</p>
+  </section>
+
+  <section class="subareas">
+    <h2>Subáreas da ementa</h2>
+    <ul>
+      <li *ngFor="let subarea of currentArea.subareas">{{ subarea }}</li>
+    </ul>
+  </section>
+
+  <section class="subareas">
+    <h2>Ferramentas principais</h2>
+    <ul>
+      <li *ngFor="let ferramenta of currentArea.ferramentas">{{ ferramenta }}</li>
+    </ul>
+  </section>
+</ng-container>
+
+<ng-template #notFound>
+  <section class="header">
+    <h1>Área não encontrada</h1>
+    <p>A área informada não existe no catálogo atual.</p>
+    <a routerLink="/areas" class="back-link">Ir para lista de áreas</a>
+  </section>
+</ng-template>

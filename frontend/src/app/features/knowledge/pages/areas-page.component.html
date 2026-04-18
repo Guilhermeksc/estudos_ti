@@ -1,0 +1,26 @@
+<section class="header">
+  <h1>Repositório de Conhecimentos</h1>
+  <p>
+    Navegue pela ementa por áreas e subáreas. Cada área centraliza os assuntos para estudo e futura inclusão de aulas,
+    questões e simulados.
+  </p>
+</section>
+
+<section class="grid">
+  <article class="card" *ngFor="let area of areas">
+    <h2>{{ area.title }}</h2>
+    <p>{{ area.description }}</p>
+
+    <h3>Subáreas</h3>
+    <ul>
+      <li *ngFor="let subarea of area.subareas | slice:0:4">{{ subarea }}</li>
+    </ul>
+
+    <h3>Ferramentas</h3>
+    <ul>
+      <li *ngFor="let ferramenta of area.ferramentas | slice:0:4">{{ ferramenta }}</li>
+    </ul>
+
+    <a [routerLink]="['/areas', area.slug]">Ver área completa</a>
+  </article>
+</section>

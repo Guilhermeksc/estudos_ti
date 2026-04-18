@@ -1,0 +1,40 @@
+.header h1 {
+  margin: 0.4rem 0 0.6rem;
+  font-size: 1.8rem;
+}
+
+.header p {
+  margin: 0;
+  color: #4b5563;
+}
+
+.back-link {
+  display: inline-block;
+  text-decoration: none;
+  color: #1d4ed8;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.subareas {
+  margin-top: 1.5rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.subareas h2 {
+  margin: 0 0 0.8rem;
+  font-size: 1.2rem;
+}
+
+.subareas ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.subareas li {
+  margin-bottom: 0.45rem;
+  color: #374151;
+}
