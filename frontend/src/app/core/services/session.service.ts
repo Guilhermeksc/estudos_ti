@@ -13,8 +13,8 @@ export class SessionService {
   readonly isAuthenticated = computed(() => !!this.accessTokenState());
 
   setSession(payload: CemosLoginResponse): void {
-    this.accessTokenState.set(payload.access);
-    this.refreshTokenState.set(payload.refresh);
+    this.accessTokenState.set(payload.accessToken);
+    this.refreshTokenState.set(null);
     this.userState.set(payload.user ?? null);
   }
 

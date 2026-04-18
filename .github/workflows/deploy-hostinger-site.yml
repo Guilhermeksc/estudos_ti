@@ -5,6 +5,7 @@ on:
     branches: ["main"]
     paths:
       - "frontend/**"
+      - "scripts/prepare-hostinger-site.sh"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/deploy-hostinger-site.yml"
@@ -27,24 +28,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Angular frontend
-        run: npm run build:frontend
-
-      - name: Ensure SPA .htaccess exists
-        run: |
-          DEPLOY_DIR="frontend/dist/browser/"
-          if [ ! -f "${DEPLOY_DIR}.htaccess" ]; then
-            cat > "${DEPLOY_DIR}.htaccess" <<'HTACCESS'
-          Options -MultiViews
-          RewriteEngine On
-          RewriteCond %{REQUEST_FILENAME} !-f
-          RewriteRule ^ index.html [QSA,L]
-          HTACCESS
-          fi
-
-      - name: Validate build output
-        run: |
-          test -f frontend/dist/browser/index.html
+      - name: Build frontend deploy bundle
+        run: npm run build
 
       - name: FTP Deploy to Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -53,5 +38,5 @@ jobs:
           username: ${{ secrets.HOSTINGER_FTP_USER }}
           password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
           protocol: ftp
-          local-dir: frontend/dist/browser/
+          local-dir: ./dist/
           server-dir: /public_html/

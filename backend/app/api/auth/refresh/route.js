@@ -6,14 +6,22 @@ import {
   refreshCookieName,
   refreshCookieMaxAgeSeconds
 } from '../../../../lib/auth';
+import { buildCorsHeaders, withCors } from '../../../../lib/cors';
 import { djangoRefresh } from '../../../../lib/django-auth';
+
+export async function OPTIONS(request) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: buildCorsHeaders(request.headers.get('origin'))
+  });
+}
 
 export async function POST(request) {
   try {
     const refreshToken = request.cookies.get(refreshCookieName)?.value;
 
     if (!refreshToken) {
-      return NextResponse.json({ message: 'Refresh token ausente' }, { status: 401 });
+      return withCors(NextResponse.json({ message: 'Refresh token ausente' }, { status: 401 }), request);
     }
 
     const djangoResponse = await djangoRefresh(refreshToken);
@@ -28,7 +36,7 @@ export async function POST(request) {
         ...getRefreshCookieConfig(),
         maxAge: 0
       });
-      return unauthorized;
+      return withCors(unauthorized, request);
     }
 
     const rotatedRefresh = data.refresh || refreshToken;
@@ -49,8 +57,11 @@ export async function POST(request) {
       ...getRefreshCookieConfig(),
       maxAge: refreshCookieMaxAgeSeconds
     });
-    return response;
+    return withCors(response, request);
   } catch (error) {
-    return NextResponse.json({ message: 'Falha ao renovar sessão no servidor externo' }, { status: 502 });
+    return withCors(
+      NextResponse.json({ message: 'Falha ao renovar sessão no servidor externo' }, { status: 502 }),
+      request
+    );
   }
 }

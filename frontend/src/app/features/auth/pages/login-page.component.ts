@@ -70,7 +70,7 @@ export class LoginPageComponent {
 
     this.authService.login(username.trim(), password).subscribe({
       next: (response) => {
-        this.integrationMessage = `Integração OK: endpoint https://cemos2028.com/api/auth/login/ respondeu com access token para ${response.user?.username ?? username}.`;
+        this.integrationMessage = `Integração OK: endpoint da API respondeu com access token para ${response.user?.username ?? username}.`;
         this.testing = false;
       },
       error: (error: HttpErrorResponse) => {
