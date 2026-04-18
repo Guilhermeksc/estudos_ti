@@ -3,6 +3,11 @@ name: Deploy Frontend to Hostinger Sites
 on:
   push:
     branches: ["main"]
+    paths:
+      - "frontend/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/deploy-hostinger-site.yml"
   workflow_dispatch:
 
 jobs:
@@ -22,8 +27,29 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Prepare static site bundle
-        run: npm run hostinger:site:prepare
+      - name: Build Angular frontend
+        run: npm run build:frontend
+
+      - name: Resolve deploy directory
+        id: deploy_dir
+        run: |
+          if [ -d "frontend/dist/frontend/browser" ]; then
+            echo "path=frontend/dist/frontend/browser/" >> "$GITHUB_OUTPUT"
+          else
+            echo "path=frontend/dist/frontend/" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ensure SPA .htaccess exists
+        run: |
+          DEPLOY_DIR="${{ steps.deploy_dir.outputs.path }}"
+          if [ ! -f "${DEPLOY_DIR}.htaccess" ]; then
+            cat > "${DEPLOY_DIR}.htaccess" <<'HTACCESS'
+          Options -MultiViews
+          RewriteEngine On
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteRule ^ index.html [QSA,L]
+          HTACCESS
+          fi
 
       - name: FTP Deploy to Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -32,5 +58,5 @@ jobs:
           username: ${{ secrets.HOSTINGER_FTP_USER }}
           password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
           protocol: ftp
-          local-dir: ./dist/
-          server-dir: ./public_html/
+          local-dir: ${{ steps.deploy_dir.outputs.path }}
+          server-dir: /public_html/
