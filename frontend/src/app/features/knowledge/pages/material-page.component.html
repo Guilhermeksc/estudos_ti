@@ -1,0 +1,12 @@
+<section class="header">
+  <a [routerLink]="['/areas', areaSlug()]" class="back-link">← Voltar para a área</a>
+  <h1>{{ materialTitle() }}</h1>
+</section>
+
+<section class="material-content" *ngIf="htmlContent()">
+  <div class="markdown-body" [innerHTML]="htmlContent()"></div>
+</section>
+
+<section class="loading" *ngIf="!htmlContent()">
+  <p>Carregando material...</p>
+</section>

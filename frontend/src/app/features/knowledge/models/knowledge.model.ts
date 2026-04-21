@@ -4,4 +4,5 @@ export interface KnowledgeArea {
   description: string;
   subareas: string[];
   ferramentas: string[];
+  materiais?: { title: string; url: string }[];
 }

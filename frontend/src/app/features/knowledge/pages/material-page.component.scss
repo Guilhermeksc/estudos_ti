@@ -1,0 +1,101 @@
+.header {
+  margin-bottom: 2rem;
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: var(--primary-color, #007bff);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: var(--text-color, #333);
+    margin: 0;
+  }
+}
+
+.material-content {
+  background: var(--bg-card, #fff);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  .markdown-body {
+    line-height: 1.6;
+    color: var(--text-color, #333);
+
+    ::ng-deep {
+      h1, h2, h3, h4, h5, h6 {
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+        color: var(--heading-color, #222);
+      }
+
+      h1 { font-size: 2em; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+      h2 { font-size: 1.5em; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+      
+      p { margin-bottom: 1em; }
+      
+      ul, ol {
+        margin-bottom: 1em;
+        padding-left: 2em;
+      }
+
+      li { margin-bottom: 0.5em; }
+
+      pre {
+        background: #f6f8fa;
+        padding: 16px;
+        border-radius: 6px;
+        overflow: auto;
+        font-family: monospace;
+      }
+
+      code {
+        background: #f6f8fa;
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        font-family: monospace;
+      }
+
+      pre code {
+        background: transparent;
+        padding: 0;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 1em;
+
+        th, td {
+          border: 1px solid #dfe2e5;
+          padding: 6px 13px;
+        }
+
+        th { background-color: #f6f8fa; font-weight: 600; }
+        tr:nth-child(2n) { background-color: #f6f8fa; }
+      }
+
+      blockquote {
+        margin: 0 0 1em;
+        padding: 0 1em;
+        color: #6a737d;
+        border-left: 0.25em solid #dfe2e5;
+      }
+    }
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-style: italic;
+}

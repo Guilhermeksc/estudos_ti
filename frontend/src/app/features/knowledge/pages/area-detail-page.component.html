@@ -18,6 +18,15 @@
       <li *ngFor="let ferramenta of currentArea.ferramentas">{{ ferramenta }}</li>
     </ul>
   </section>
+
+  <section class="subareas" *ngIf="currentArea.materiais && currentArea.materiais.length > 0">
+    <h2>Materiais de Estudo</h2>
+    <ul>
+      <li *ngFor="let material of currentArea.materiais; let i = index">
+        <a [routerLink]="['/areas', currentArea.slug, 'material', i]">{{ material.title }}</a>
+      </li>
+    </ul>
+  </section>
 </ng-container>
 
 <ng-template #notFound>

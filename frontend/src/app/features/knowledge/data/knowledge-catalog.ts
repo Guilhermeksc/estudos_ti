@@ -17,7 +17,13 @@ export const KNOWLEDGE_CATALOG: KnowledgeArea[] = [
       'Escalabilidade e tolerância a falhas em sistemas web e distribuídos',
       'Operação Linux com scripts, observabilidade e troubleshooting'
     ],
-    ferramentas: ['Linux', 'Windows Server', 'KVM', 'VMware vSphere/ESXi', 'Zabbix', 'Grafana', 'New Relic', 'Nginx/HAProxy', 'Bash', 'PowerShell', 'Puppet']
+    ferramentas: ['Linux', 'Windows Server', 'KVM', 'VMware vSphere/ESXi', 'Zabbix', 'Grafana', 'New Relic', 'Nginx/HAProxy', 'Bash', 'PowerShell', 'Puppet'],
+    materiais: [
+      {
+        title: 'Tópico 1: Arquitetura de Infraestrutura de TI',
+        url: '/roteiro_topico1_arquitetura_infra(2).md'
+      }
+    ]
   },
   {
     slug: 'engenharia-dados',
