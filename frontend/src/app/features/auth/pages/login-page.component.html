@@ -2,6 +2,12 @@
   <h1>Login</h1>
   <p class="subtitle">Autenticação direta no backend de produção em cemos2028.com.</p>
 
+  <button type="button" class="google-login" (click)="onGoogleLogin()">
+    Entrar com Google
+  </button>
+
+  <div class="divider"><span>ou</span></div>
+
   <form [formGroup]="form" (ngSubmit)="onSubmitLogin()" class="login-form">
     <label>
       Usuário

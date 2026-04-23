@@ -22,6 +22,31 @@ h1 {
   gap: 0.9rem;
 }
 
+.google-login {
+  width: 100%;
+  margin-bottom: 1rem;
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #d1d5db;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: #e5e7eb;
+}
+
 label {
   display: flex;
   flex-direction: column;

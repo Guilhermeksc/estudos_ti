@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 import { CemosAuthService } from '../../../core/services/cemos-auth.service';
 import { SessionService } from '../../../core/services/session.service';
@@ -16,6 +17,7 @@ export class LoginPageComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(CemosAuthService);
   private readonly sessionService = inject(SessionService);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly form = this.formBuilder.nonNullable.group({
     username: ['', [Validators.required]],
@@ -28,6 +30,10 @@ export class LoginPageComponent {
 
   protected readonly isAuthenticated = this.sessionService.isAuthenticated;
   protected readonly currentUser = this.sessionService.user;
+
+  protected onGoogleLogin(): void {
+    this.authService.loginWithProvider('google', this.getReturnUrl());
+  }
 
   protected onSubmitLogin(): void {
     if (this.form.invalid || this.loading) {
@@ -74,5 +80,13 @@ export class LoginPageComponent {
       return message;
     }
     return 'Não foi possível autenticar. Verifique usuário e senha.';
+  }
+
+  private getReturnUrl(): string {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (returnUrl?.startsWith('/') && !returnUrl.startsWith('//')) {
+      return `${window.location.origin}${returnUrl}`;
+    }
+    return `${window.location.origin}/areas`;
   }
 }
