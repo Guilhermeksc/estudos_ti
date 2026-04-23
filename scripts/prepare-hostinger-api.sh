@@ -4,7 +4,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BACKEND_DIR="$ROOT_DIR/backend"
 TARGET_DIR="$ROOT_DIR/deploy/hostinger/api"
-STANDALONE_DIR="$BACKEND_DIR/.next/standalone/backend"
+STANDALONE_ROOT="$BACKEND_DIR/.next/standalone"
+STANDALONE_DIR="$STANDALONE_ROOT/backend"
 STATIC_DIR="$BACKEND_DIR/.next/static"
 
 echo "[1/5] Building backend workspace..."
@@ -17,6 +18,7 @@ mkdir -p "$TARGET_DIR"
 
 echo "[3/5] Copying Next standalone server bundle..."
 cp -R "$STANDALONE_DIR"/. "$TARGET_DIR"/
+cp -R "$STANDALONE_ROOT/node_modules" "$TARGET_DIR/node_modules"
 
 echo "[4/5] Copying Next static assets..."
 mkdir -p "$TARGET_DIR/.next"
