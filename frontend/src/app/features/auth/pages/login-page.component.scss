@@ -9,6 +9,7 @@
 
 h1 {
   margin: 0 0 0.35rem;
+  text-align: center;
 }
 
 .subtitle {
@@ -28,6 +29,26 @@ h1 {
   background: #ffffff;
   color: #111827;
   border: 1px solid #d1d5db;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.google-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  font-family: Arial, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #4285f4;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    conic-gradient(#4285f4 0 25%, #34a853 0 50%, #fbbc05 0 75%, #ea4335 0) border-box;
+  border: 2px solid transparent;
 }
 
 .divider {
@@ -63,6 +84,7 @@ input {
 
 .actions {
   display: flex;
+  justify-content: center;
   gap: 0.65rem;
 }
 
@@ -74,6 +96,10 @@ button {
   cursor: pointer;
   background: #1d4ed8;
   color: #ffffff;
+}
+
+.actions button[type='submit'] {
+  min-width: 10rem;
 }
 
 button.secondary {

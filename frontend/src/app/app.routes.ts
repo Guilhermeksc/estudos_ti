@@ -6,6 +6,7 @@ import { LoginPageComponent } from './features/auth/pages/login-page.component';
 import { AreaDetailPageComponent } from './features/knowledge/pages/area-detail-page.component';
 import { AreasPageComponent } from './features/knowledge/pages/areas-page.component';
 import { MaterialPageComponent } from './features/knowledge/pages/material-page.component';
+import { TiMateriasCardsPageComponent } from './features/knowledge/pages/ti-materias-cards-page.component';
 
 export const routes: Routes = [
   {
@@ -31,6 +32,11 @@ export const routes: Routes = [
     path: 'areas/:slug/material/:materialIndex',
     canActivate: [authGuard],
     component: MaterialPageComponent
+  },
+  {
+    path: 'ti/materias',
+    canActivate: [authGuard],
+    component: TiMateriasCardsPageComponent
   },
   {
     path: 'login',

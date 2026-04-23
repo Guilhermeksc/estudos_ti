@@ -17,6 +17,7 @@ export class App {
   private readonly router = inject(Router);
 
   protected readonly isAuthenticated = this.sessionService.isAuthenticated;
+  protected readonly currentUser = this.sessionService.user;
 
   protected logout(): void {
     this.authService.logout().subscribe({

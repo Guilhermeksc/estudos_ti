@@ -4,6 +4,9 @@
     <nav class="menu">
       <a *ngIf="!isAuthenticated()" routerLink="/login" routerLinkActive="active">Login</a>
       <a *ngIf="isAuthenticated()" routerLink="/areas" routerLinkActive="active">Áreas de Conhecimento</a>
+      <span *ngIf="isAuthenticated()" class="user-name">
+        {{ currentUser()?.name || currentUser()?.username || currentUser()?.email || 'Usuário' }}
+      </span>
       <button *ngIf="isAuthenticated()" type="button" class="logout-button" (click)="logout()">
         Sair
       </button>

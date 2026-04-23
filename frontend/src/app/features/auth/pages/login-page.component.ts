@@ -86,6 +86,9 @@ export class LoginPageComponent {
 
   private getReturnUrl(): string {
     const returnUrl = this.getInternalReturnUrl();
+    if (this.isLocalDevelopmentHost()) {
+      return `http://localhost:4200${returnUrl}`;
+    }
     return `${window.location.origin}${returnUrl}`;
   }
 
@@ -95,5 +98,9 @@ export class LoginPageComponent {
       return returnUrl;
     }
     return '/areas';
+  }
+
+  private isLocalDevelopmentHost(): boolean {
+    return ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
   }
 }

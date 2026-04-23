@@ -1,0 +1,181 @@
+<section class="page-header">
+  <div class="header-content">
+    <div class="header-text">
+      <h1>Matérias de TI</h1>
+      <p>Explore as áreas, subáreas e ferramentas do módulo TI. Cada card representa uma matéria com seu conteúdo disponível.</p>
+    </div>
+    <button id="btn-nova-materia" class="btn-primary" (click)="openModal()">
+      <span class="btn-icon">＋</span>
+      Nova Matéria
+    </button>
+  </div>
+</section>
+
+<!-- Estado: carregando -->
+<section class="state-container" *ngIf="loading()">
+  <div class="spinner-ring"></div>
+  <p class="state-text">Carregando matérias...</p>
+</section>
+
+<!-- Estado: erro -->
+<section class="state-container" *ngIf="!loading() && error()">
+  <div class="state-icon error-icon">✕</div>
+  <p class="state-text">{{ error() }}</p>
+  <button class="btn-secondary" (click)="loadCards()">Tentar novamente</button>
+</section>
+
+<!-- Estado: sem dados -->
+<section class="state-container" *ngIf="!loading() && !error() && cards().length === 0">
+  <div class="state-icon empty-icon">📂</div>
+  <p class="state-text">Nenhuma matéria cadastrada ainda.</p>
+  <button class="btn-primary" (click)="openModal()">Criar primeira matéria</button>
+</section>
+
+<!-- Grid de cards -->
+<section class="cards-grid" *ngIf="!loading() && !error() && cards().length > 0">
+  <article
+    class="materia-card"
+    *ngFor="let card of cards(); trackBy: trackByCard"
+    [id]="'card-' + card.id"
+  >
+    <div class="card-top">
+      <span class="area-badge">{{ card.areaSlug }}</span>
+    </div>
+
+    <h2 class="card-title">{{ card.titulo }}</h2>
+    <p class="card-desc">{{ card.descricao }}</p>
+
+    <div class="card-stats">
+      <div class="stat">
+        <span class="stat-value">{{ card.subareasCount }}</span>
+        <span class="stat-label">Subáreas</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-value">{{ card.ferramentasCount }}</span>
+        <span class="stat-label">Ferramentas</span>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <a [routerLink]="['/areas', card.areaSlug]" class="btn-card-link">
+        Ver área completa →
+      </a>
+    </div>
+  </article>
+</section>
+
+<!-- Modal: nova matéria -->
+<div class="modal-backdrop" *ngIf="showModal()" (click)="closeModal()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 id="modal-title">Nova Matéria</h2>
+      <button class="modal-close" aria-label="Fechar" (click)="closeModal()">✕</button>
+    </div>
+
+    <form class="modal-form" [formGroup]="form" (ngSubmit)="submitForm()" novalidate>
+      <!-- Título -->
+      <div class="field">
+        <label for="f-titulo">Título <span class="required">*</span></label>
+        <input
+          id="f-titulo"
+          type="text"
+          formControlName="titulo"
+          placeholder="Ex.: Infraestrutura de TI"
+          (blur)="onTituloBlur()"
+          [class.invalid]="form.get('titulo')?.invalid && form.get('titulo')?.touched"
+        />
+        <span class="field-error" *ngIf="form.get('titulo')?.errors?.['required'] && form.get('titulo')?.touched">
+          Título é obrigatório.
+        </span>
+        <span class="field-error" *ngIf="form.get('titulo')?.errors?.['minlength'] && form.get('titulo')?.touched">
+          Mínimo de 3 caracteres.
+        </span>
+      </div>
+
+      <!-- Slug -->
+      <div class="field">
+        <label for="f-slug">Slug <span class="required">*</span></label>
+        <input
+          id="f-slug"
+          type="text"
+          formControlName="slug"
+          placeholder="Ex.: infraestrutura-ti"
+          [class.invalid]="form.get('slug')?.invalid && form.get('slug')?.touched"
+        />
+        <span class="field-hint">Gerado automaticamente. Apenas letras minúsculas, números e hífens.</span>
+        <span class="field-error" *ngIf="form.get('slug')?.errors?.['required'] && form.get('slug')?.touched">
+          Slug é obrigatório.
+        </span>
+        <span class="field-error" *ngIf="form.get('slug')?.errors?.['pattern'] && form.get('slug')?.touched">
+          Formato inválido (use apenas letras minúsculas, números e hífens).
+        </span>
+      </div>
+
+      <!-- Área Slug -->
+      <div class="field">
+        <label for="f-area-slug">Slug da Área <span class="required">*</span></label>
+        <input
+          id="f-area-slug"
+          type="text"
+          formControlName="areaSlug"
+          placeholder="Ex.: infraestrutura-ti"
+          [class.invalid]="form.get('areaSlug')?.invalid && form.get('areaSlug')?.touched"
+        />
+        <span class="field-error" *ngIf="form.get('areaSlug')?.errors?.['required'] && form.get('areaSlug')?.touched">
+          Slug da área é obrigatório.
+        </span>
+      </div>
+
+      <!-- Descrição -->
+      <div class="field">
+        <label for="f-descricao">Descrição <span class="required">*</span></label>
+        <textarea
+          id="f-descricao"
+          formControlName="descricao"
+          rows="3"
+          placeholder="Descreva brevemente o conteúdo da matéria..."
+          [class.invalid]="form.get('descricao')?.invalid && form.get('descricao')?.touched"
+        ></textarea>
+        <span class="field-error" *ngIf="form.get('descricao')?.errors?.['required'] && form.get('descricao')?.touched">
+          Descrição é obrigatória.
+        </span>
+        <span class="field-error" *ngIf="form.get('descricao')?.errors?.['minlength'] && form.get('descricao')?.touched">
+          Mínimo de 10 caracteres.
+        </span>
+      </div>
+
+      <!-- Ordem + Ativo -->
+      <div class="field-row">
+        <div class="field">
+          <label for="f-ordem">Ordem</label>
+          <input id="f-ordem" type="number" formControlName="ordem" min="1" placeholder="10" />
+        </div>
+        <div class="field field-checkbox">
+          <label class="checkbox-label">
+            <input id="f-ativo" type="checkbox" formControlName="ativo" />
+            <span>Ativo</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Feedback de sucesso -->
+      <div class="save-success" *ngIf="saveSuccess()">
+        ✓ Matéria criada com sucesso!
+      </div>
+
+      <!-- Feedback de erro -->
+      <div class="save-error" *ngIf="saveError()">
+        {{ saveError() }}
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="closeModal()" [disabled]="saving()">Cancelar</button>
+        <button type="submit" id="btn-salvar-materia" class="btn-primary" [disabled]="saving()">
+          <span *ngIf="saving()">Salvando...</span>
+          <span *ngIf="!saving()">Salvar Matéria</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
