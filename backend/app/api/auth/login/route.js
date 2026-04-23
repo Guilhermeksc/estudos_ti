@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { getRefreshCookieConfig, refreshCookieName } from '../../../../lib/auth';
+import { decodeJwtPayload, getRefreshCookieConfig, refreshCookieName } from '../../../../lib/auth';
 import { buildCorsHeaders, withCors } from '../../../../lib/cors';
-import { djangoLogin } from '../../../../lib/django-auth';
+import { buildUserFromPayload, keycloakLogin } from '../../../../lib/keycloak-auth';
 
 const loginSchema = z.object({
   username: z.string().min(1),
@@ -24,51 +24,43 @@ export async function POST(request) {
 
     if (!parsed.success) {
       return withCors(
-        NextResponse.json(
-        { message: 'Payload inválido', errors: parsed.error.flatten() },
-        { status: 400 }
-        ),
+        NextResponse.json({ message: 'Payload inválido', errors: parsed.error.flatten() }, { status: 400 }),
         request
       );
     }
 
-    const djangoResponse = await djangoLogin({
+    const keycloakResponse = await keycloakLogin({
       username: parsed.data.username.trim(),
       password: parsed.data.password
     });
 
-    const data = await djangoResponse.json().catch(() => ({}));
+    const data = await keycloakResponse.json().catch(() => ({}));
 
-    if (!djangoResponse.ok) {
+    if (!keycloakResponse.ok) {
+      const status = keycloakResponse.status === 401 ? 401 : 502;
+      const message = data?.error_description || data?.error || 'Credenciais inválidas';
+      return withCors(NextResponse.json({ message }, { status }), request);
+    }
+
+    if (!data?.access_token || !data?.refresh_token) {
       return withCors(
-        NextResponse.json(
-        { message: data?.detail || 'Credenciais inválidas' },
-        { status: djangoResponse.status }
-        ),
+        NextResponse.json({ message: 'Resposta inválida do servidor de autenticação' }, { status: 502 }),
         request
       );
     }
 
-    if (!data?.access || !data?.refresh) {
-      return withCors(
-        NextResponse.json(
-        { message: 'Resposta inválida do serviço de autenticação' },
-        { status: 502 }
-        ),
-        request
-      );
-    }
-
+    const payload = decodeJwtPayload(data.access_token);
     const response = NextResponse.json({
-      accessToken: data.access,
-      user: data.user || null
+      accessToken: data.access_token,
+      expiresIn: data.expires_in ?? 300,
+      user: buildUserFromPayload(payload)
     });
 
-    response.cookies.set(refreshCookieName, data.refresh, getRefreshCookieConfig());
+    response.cookies.set(refreshCookieName, data.refresh_token, getRefreshCookieConfig());
     return withCors(response, request);
-  } catch (error) {
+  } catch {
     return withCors(
-      NextResponse.json({ message: 'Falha ao autenticar no servidor externo' }, { status: 502 }),
+      NextResponse.json({ message: 'Falha ao autenticar no servidor' }, { status: 502 }),
       request
     );
   }

@@ -669,3 +669,217 @@ Separar jobs por aplicacao:
 4. Implementar autenticacao.
 5. Implementar cadastro de trilhas e aulas a partir da ementa.
 6. Construir dashboard e modulo de progresso.
+
+---
+
+## 23. Estado atual da implementacao (abril 2026)
+
+Esta seção documenta o que foi **efetivamente implementado** no projeto até o momento,
+substituindo o estado planejado das seções anteriores.
+
+### 23.1 Autenticação — migração de Django para Keycloak
+
+O fluxo de autenticação foi completamente reescrito. O projeto não usa mais o backend
+Django em `cemos2028.com`. Toda autenticação passa pelo Keycloak da plataforma Spring.
+
+**Arquitetura de autenticação atual:**
+
+```
+Angular (frontend)
+    │  POST /api/auth/login  { username, password }
+    ▼
+Next.js backend (BFF)
+    │  POST /realms/login-integrado/protocol/openid-connect/token
+    │  grant_type=password  (Direct Access Grant)
+    ▼
+Keycloak (:8180)
+    └── realm: login-integrado
+    └── client: cemos-auth-gateway
+    └── Retorna: access_token (JWT, 5 min) + refresh_token (cookie httpOnly)
+```
+
+**Arquivos criados/alterados no backend Next.js (`backend/`):**
+
+| Arquivo | O que faz |
+|---------|-----------|
+| `lib/keycloak-auth.js` | Centraliza todas as chamadas ao Keycloak: `keycloakLogin`, `keycloakRefresh`, `keycloakLogout`, `buildUserFromPayload` |
+| `app/api/auth/login/route.js` | Direct Access Grant; retorna `{ accessToken, expiresIn, user }`; armazena `refresh_token` em cookie `httpOnly` |
+| `app/api/auth/refresh/route.js` | Lê o cookie `refresh_token`; chama Keycloak para renovar; faz rotate do refresh token |
+| `app/api/auth/logout/route.js` | Invalida sessão no Keycloak (`/logout`); limpa o cookie |
+| `app/api/auth/me/route.js` | Decodifica o Bearer JWT; retorna campos Keycloak: `sub`, `preferred_username`, `email`, `name`, `roles` |
+| `app/api/auth/register/route.js` | Removida referência ao Django; retorna 501 orientando ao Keycloak |
+| `.env.example` | Atualizado com `KEYCLOAK_*`, `CORS_ORIGIN`, `MONGODB_URI` |
+
+**Formato da resposta de login:**
+
+```json
+{
+  "accessToken": "eyJhbGci...",
+  "expiresIn": 300,
+  "user": {
+    "sub": "uuid-keycloak",
+    "username": "admin",
+    "email": "admin@cemos2028.com",
+    "name": "Administrador Plataforma",
+    "roles": ["ADMIN"]
+  }
+}
+```
+
+O `refresh_token` **não aparece no body** — é armazenado como cookie `httpOnly; SameSite=Lax`
+e enviado automaticamente pelo browser nas chamadas subsequentes a `/api/auth/refresh`.
+
+**Roles disponíveis no realm `login-integrado`:**
+
+| Role | Permissão |
+|------|-----------|
+| `ADMIN` | Acesso total |
+| `EDITOR` | Criar e editar conteúdo |
+| `APROVADOR` | Aprovar conteúdo |
+| `CONSULTA` | Somente leitura |
+| `AUDITOR` | Auditoria |
+
+---
+
+### 23.2 Frontend Angular — mudanças no fluxo de autenticação
+
+**Arquivos alterados em `frontend/src/`:**
+
+| Arquivo | Mudança |
+|---------|---------|
+| `core/services/cemos-auth.service.ts` | Novas interfaces `AuthUser` e `LoginResponse`; chamadas para `/api/auth/*` (proxy local) com `withCredentials: true` |
+| `core/services/session.service.ts` | Usa `AuthUser` (sem `refreshToken` em memória); novo método `hasRole(role: string)` |
+| `core/interceptors/auth-token.interceptor.ts` | Paths ignorados atualizados: `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout` |
+| `features/auth/pages/login-page.component.ts` | Remove `onTestIntegration()` (específico do Django); adiciona `onLogout()` com invalidação remota |
+| `proxy.conf.json` *(novo)* | Proxy de desenvolvimento: `/api → http://localhost:3001` |
+| `angular.json` | Adicionado `"proxyConfig": "proxy.conf.json"` no `serve.options` |
+
+**Interfaces TypeScript atuais:**
+
+```typescript
+export interface AuthUser {
+  sub: string;           // UUID do Keycloak
+  username: string;      // preferred_username
+  email: string;
+  name: string;
+  roles: string[];
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  expiresIn: number;
+  user: AuthUser | null;
+}
+```
+
+**Fluxo do refresh token:**
+
+O cookie `refresh_token` (httpOnly) é enviado automaticamente quando o Angular chama
+`POST /api/auth/refresh`. O Next.js lê o cookie, chama o Keycloak, e retorna um novo
+`accessToken` para o Angular armazenar em memória.
+
+---
+
+### 23.3 MongoDB — API de Áreas de Conhecimento
+
+A coleção `areas` no MongoDB armazena o conteúdo dinâmico das áreas, subáreas e
+ferramentas com texto em Markdown. Essa API é exposta **tanto pelo Next.js (gkdev)**
+quanto pelo **Spring Boot (módulo `ti`)**.
+
+**Estrutura do documento MongoDB (coleção `gkdev.areas`):**
+
+```json
+{
+  "_id": "ObjectId(...)",
+  "slug": "infraestrutura-ti",
+  "title": "Infraestrutura de TI",
+  "description": "Descrição da área...",
+  "subareas": [
+    { "slug": "redes-e-comunicacao", "nome": "Redes e comunicação de dados", "conteudo": "# Redes...(Markdown)" }
+  ],
+  "ferramentas": [
+    { "slug": "linux", "nome": "Linux", "conteudo": "# Linux...(Markdown)" }
+  ],
+  "materiais": [
+    { "title": "Roteiro: Arquitetura", "url": "/roteiros/arquitetura.md" }
+  ],
+  "createdAt": "...",
+  "updatedAt": "..."
+}
+```
+
+**Endpoints disponíveis (Next.js em `/api/areas`):**
+
+| Método | Rota | Auth | Descrição |
+|--------|------|------|-----------|
+| `GET` | `/api/areas` | Público | Lista todas as áreas |
+| `GET` | `/api/areas/:slug` | Público | Retorna uma área completa |
+| `PUT` | `/api/areas/:slug` | ADMIN ou EDITOR | Cria ou atualiza área completa (upsert) |
+| `PATCH` | `/api/areas/:slug/subareas/:subareaSlug` | ADMIN ou EDITOR | Atualiza o `conteudo` Markdown de uma subárea |
+| `PATCH` | `/api/areas/:slug/ferramentas/:ferramentaSlug` | ADMIN ou EDITOR | Atualiza o `conteudo` Markdown de uma ferramenta |
+
+Os mesmos endpoints também são expostos pelo **Spring Boot** no módulo `ti`
+(`/home/guilherme/Projetos/java/spring/modules/ti/`), compartilhando a mesma
+coleção MongoDB. Ver documentação em `modules/ti/API-AREAS-MONGODB.md`.
+
+---
+
+### 23.4 Proxy de desenvolvimento
+
+Em desenvolvimento o Angular não chama a API diretamente via URL absoluta.
+O `ng serve` usa `proxy.conf.json` para redirecionar:
+
+```
+Angular :4200  /api/*  →  Next.js :3001  /api/*
+```
+
+Para iniciar em desenvolvimento:
+
+```bash
+# Terminal 1 — Keycloak + MongoDB (via docker-compose da plataforma Spring)
+cd /home/guilherme/Projetos/java/spring
+docker compose up -d mongodb keycloak db
+
+# Terminal 2 — Next.js backend (gkdev)
+cd /home/guilherme/Projetos/gkdev/backend
+cp .env.example .env.local
+# Edite .env.local com KEYCLOAK_CLIENT_SECRET do .env da plataforma Spring
+PORT=3001 npm run dev
+
+# Terminal 3 — Angular frontend (gkdev)
+cd /home/guilherme/Projetos/gkdev/frontend
+npm run dev  # ou: ng serve
+```
+
+---
+
+### 23.5 Configuração de ambiente necessária
+
+Antes de rodar o projeto, crie `backend/.env.local` a partir do `.env.example`:
+
+```env
+KEYCLOAK_URL=http://localhost:8180
+KEYCLOAK_REALM=login-integrado
+KEYCLOAK_CLIENT_ID=cemos-auth-gateway
+KEYCLOAK_CLIENT_SECRET=<valor de KEYCLOAK_GATEWAY_CLIENT_SECRET no .env do Spring>
+
+CORS_ORIGIN=http://localhost:4200
+
+MONGODB_URI=mongodb://gkdev:gkdev_secret@localhost:27017/gkdev?authSource=admin
+```
+
+O `KEYCLOAK_CLIENT_SECRET` está em:
+`/home/guilherme/Projetos/java/spring/.env` → variável `KEYCLOAK_GATEWAY_CLIENT_SECRET`
+
+---
+
+### 23.6 O que ainda não foi implementado
+
+| Funcionalidade | Status |
+|----------------|--------|
+| Tela de login Angular conectada ao Next.js (HTML/SCSS) | Lógica pronta, template pendente |
+| Renovação automática do access token no interceptor | Pendente |
+| Guard de rotas por role no Angular | Pendente |
+| Seed inicial das áreas no MongoDB | Script JS disponível em `mongodb-areas-implementation.md` |
+| Deploy da API Next.js no Hostinger | Ver `HOSTINGER_SITES.md` |
+| Demais módulos: questões, simulados, progresso | Fase 2/3 do roadmap |

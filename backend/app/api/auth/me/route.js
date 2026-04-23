@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 
-import { buildCorsHeaders, withCors } from '../../../../lib/cors';
 import { decodeJwtPayload, getBearerToken } from '../../../../lib/auth';
+import { buildCorsHeaders, withCors } from '../../../../lib/cors';
+import { buildUserFromPayload } from '../../../../lib/keycloak-auth';
 
 export async function OPTIONS(request) {
   return new NextResponse(null, {
@@ -25,14 +26,9 @@ export async function GET(request) {
 
   return withCors(
     NextResponse.json({
-      user: {
-        id: payload.user_id || null,
-        username: payload.username || null,
-        perfil: payload.perfil || null,
-        is_staff: payload.is_staff || false
-      },
-      exp: payload.exp || null,
-      iat: payload.iat || null
+      user: buildUserFromPayload(payload),
+      exp: payload.exp ?? null,
+      iat: payload.iat ?? null
     }),
     request
   );

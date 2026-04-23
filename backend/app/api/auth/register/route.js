@@ -12,10 +12,7 @@ export async function OPTIONS(request) {
 export async function POST(request) {
   return withCors(
     NextResponse.json(
-      {
-        message: 'Cadastro não é realizado neste serviço. Use o backend Django em produção.',
-        registerUrl: `${(process.env.DJANGO_AUTH_BASE_URL || 'https://cemos2028.com').replace(/\/$/, '')}/register/`
-      },
+      { message: 'Cadastro de usuários é gerenciado pelo painel do Keycloak ou pelo fluxo de registro da plataforma principal.' },
       { status: 501 }
     ),
     request

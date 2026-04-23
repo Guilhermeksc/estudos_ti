@@ -3,29 +3,21 @@ import { inject } from '@angular/core';
 
 import { SessionService } from '../services/session.service';
 
-const ignoredPaths = ['/api/auth/login/', '/api/auth/token/refresh/'];
+const ignoredPaths = ['/api/auth/login', '/api/auth/refresh', '/api/auth/logout'];
 
-function shouldIgnoreRequest(url: string): boolean {
+function shouldIgnore(url: string): boolean {
   return ignoredPaths.some((path) => url.includes(path));
 }
 
 export const authTokenInterceptor: HttpInterceptorFn = (request, next) => {
-  if (shouldIgnoreRequest(request.url)) {
+  if (shouldIgnore(request.url)) {
     return next(request);
   }
 
-  const sessionService = inject(SessionService);
-  const accessToken = sessionService.getAccessToken();
-
-  if (!accessToken) {
+  const token = inject(SessionService).getAccessToken();
+  if (!token) {
     return next(request);
   }
 
-  const authenticatedRequest = request.clone({
-    setHeaders: {
-      Authorization: `Bearer ${accessToken}`
-    }
-  });
-
-  return next(authenticatedRequest);
+  return next(request.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
 };

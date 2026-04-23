@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { CemosAuthService, CemosLoginResponse } from '../../../core/services/cemos-auth.service';
+import { CemosAuthService } from '../../../core/services/cemos-auth.service';
 import { SessionService } from '../../../core/services/session.service';
 
 @Component({
@@ -23,11 +23,9 @@ export class LoginPageComponent {
   });
 
   protected loading = false;
-  protected testing = false;
   protected successMessage = '';
   protected errorMessage = '';
-  protected integrationMessage = '';
-  protected loginResponse: CemosLoginResponse | null = null;
+
   protected readonly isAuthenticated = this.sessionService.isAuthenticated;
   protected readonly currentUser = this.sessionService.user;
 
@@ -45,52 +43,36 @@ export class LoginPageComponent {
     this.authService.login(username.trim(), password).subscribe({
       next: (response) => {
         this.sessionService.setSession(response);
-        this.loginResponse = response;
-        this.successMessage = `Login realizado com sucesso no cemos2028.com para o usuário ${response.user?.username ?? username}.`;
+        this.successMessage = `Login realizado com sucesso. Bem-vindo, ${response.user?.name ?? response.user?.username ?? username}!`;
         this.loading = false;
       },
       error: (error: HttpErrorResponse) => {
         this.sessionService.clearSession();
-        this.loginResponse = null;
         this.errorMessage = this.extractErrorMessage(error);
         this.loading = false;
       }
     });
   }
 
-  protected onTestIntegration(): void {
-    if (this.form.invalid || this.testing) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    const { username, password } = this.form.getRawValue();
-    this.testing = true;
-    this.integrationMessage = '';
-
-    this.authService.login(username.trim(), password).subscribe({
-      next: (response) => {
-        this.integrationMessage = `Integração OK: endpoint https://cemos2028.com/api/auth/login/ respondeu com access token para ${response.user?.username ?? username}.`;
-        this.testing = false;
+  protected onLogout(): void {
+    this.authService.logout().subscribe({
+      next: () => {
+        this.sessionService.clearSession();
+        this.successMessage = 'Sessão encerrada.';
       },
-      error: (error: HttpErrorResponse) => {
-        this.integrationMessage = `Falha na integração: ${this.extractErrorMessage(error)}`;
-        this.testing = false;
+      error: () => {
+        // Limpa a sessão local mesmo se o logout remoto falhar
+        this.sessionService.clearSession();
+        this.successMessage = 'Sessão encerrada localmente.';
       }
     });
   }
 
-  protected clearSession(): void {
-    this.sessionService.clearSession();
-    this.successMessage = 'Sessão local em memória removida.';
-  }
-
   private extractErrorMessage(error: HttpErrorResponse): string {
-    const detail = error?.error?.detail;
-    if (typeof detail === 'string' && detail.trim()) {
-      return detail;
+    const message = error?.error?.message;
+    if (typeof message === 'string' && message.trim()) {
+      return message;
     }
-
-    return 'Não foi possível autenticar no cemos2028.com. Verifique usuário e senha.';
+    return 'Não foi possível autenticar. Verifique usuário e senha.';
   }
 }

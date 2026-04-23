@@ -1,31 +1,42 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-export interface CemosUser {
-  id: number;
+export interface AuthUser {
+  sub: string;
   username: string;
-  perfil: string;
-  is_staff: boolean;
-  is_active: boolean;
+  email: string;
+  name: string;
+  roles: string[];
 }
 
-export interface CemosLoginResponse {
-  access: string;
-  refresh: string;
-  user?: CemosUser;
+export interface LoginResponse {
+  accessToken: string;
+  expiresIn: number;
+  user: AuthUser | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class CemosAuthService {
-  private readonly baseUrl = 'https://cemos2028.com';
+  private readonly http = inject(HttpClient);
 
-  constructor(private readonly http: HttpClient) {}
+  login(username: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(
+      '/api/auth/login',
+      { username, password },
+      { withCredentials: true }
+    );
+  }
 
-  login(username: string, password: string): Observable<CemosLoginResponse> {
-    return this.http.post<CemosLoginResponse>(`${this.baseUrl}/api/auth/login/`, {
-      username,
-      password
-    });
+  refresh(): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>('/api/auth/refresh', {}, { withCredentials: true });
+  }
+
+  logout(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>('/api/auth/logout', {}, { withCredentials: true });
+  }
+
+  me(): Observable<{ user: AuthUser }> {
+    return this.http.get<{ user: AuthUser }>('/api/auth/me', { withCredentials: true });
   }
 }

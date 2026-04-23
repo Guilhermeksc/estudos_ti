@@ -1,13 +1,8 @@
 import { NextResponse } from 'next/server';
 
-import {
-  decodeJwtPayload,
-  getRefreshCookieConfig,
-  refreshCookieName,
-  refreshCookieMaxAgeSeconds
-} from '../../../../lib/auth';
+import { decodeJwtPayload, getRefreshCookieConfig, refreshCookieName } from '../../../../lib/auth';
 import { buildCorsHeaders, withCors } from '../../../../lib/cors';
-import { djangoRefresh } from '../../../../lib/django-auth';
+import { buildUserFromPayload, keycloakRefresh } from '../../../../lib/keycloak-auth';
 
 export async function OPTIONS(request) {
   return new NextResponse(null, {
@@ -21,46 +16,35 @@ export async function POST(request) {
     const refreshToken = request.cookies.get(refreshCookieName)?.value;
 
     if (!refreshToken) {
-      return withCors(NextResponse.json({ message: 'Refresh token ausente' }, { status: 401 }), request);
+      return withCors(NextResponse.json({ message: 'Sessão expirada' }, { status: 401 }), request);
     }
 
-    const djangoResponse = await djangoRefresh(refreshToken);
-    const data = await djangoResponse.json().catch(() => ({}));
+    const keycloakResponse = await keycloakRefresh(refreshToken);
+    const data = await keycloakResponse.json().catch(() => ({}));
 
-    if (!djangoResponse.ok || !data?.access) {
-      const unauthorized = NextResponse.json(
-        { message: data?.detail || 'Não foi possível renovar a sessão' },
+    if (!keycloakResponse.ok || !data?.access_token) {
+      const expired = NextResponse.json(
+        { message: data?.error_description || 'Não foi possível renovar a sessão' },
         { status: 401 }
       );
-      unauthorized.cookies.set(refreshCookieName, '', {
-        ...getRefreshCookieConfig(),
-        maxAge: 0
-      });
-      return withCors(unauthorized, request);
+      expired.cookies.set(refreshCookieName, '', { ...getRefreshCookieConfig(), maxAge: 0 });
+      return withCors(expired, request);
     }
 
-    const rotatedRefresh = data.refresh || refreshToken;
-    const decoded = decodeJwtPayload(data.access);
+    const rotatedRefresh = data.refresh_token || refreshToken;
+    const payload = decodeJwtPayload(data.access_token);
+
     const response = NextResponse.json({
-      accessToken: data.access,
-      user: decoded
-        ? {
-            id: decoded.user_id || null,
-            username: decoded.username || null,
-            perfil: decoded.perfil || null,
-            is_staff: decoded.is_staff || false
-          }
-        : null
+      accessToken: data.access_token,
+      expiresIn: data.expires_in ?? 300,
+      user: buildUserFromPayload(payload)
     });
 
-    response.cookies.set(refreshCookieName, rotatedRefresh, {
-      ...getRefreshCookieConfig(),
-      maxAge: refreshCookieMaxAgeSeconds
-    });
+    response.cookies.set(refreshCookieName, rotatedRefresh, getRefreshCookieConfig());
     return withCors(response, request);
-  } catch (error) {
+  } catch {
     return withCors(
-      NextResponse.json({ message: 'Falha ao renovar sessão no servidor externo' }, { status: 502 }),
+      NextResponse.json({ message: 'Falha ao renovar sessão' }, { status: 502 }),
       request
     );
   }
