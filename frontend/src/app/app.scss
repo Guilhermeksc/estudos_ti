@@ -22,10 +22,30 @@
   font-weight: 500;
 }
 
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .menu a.active,
 .menu a:hover {
   opacity: 1;
   text-decoration: underline;
+}
+
+.logout-button {
+  border: 1px solid rgba(249, 250, 251, 0.45);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #f9fafb;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.45rem 0.75rem;
+}
+
+.logout-button:hover {
+  background: rgba(249, 250, 251, 0.12);
 }
 
 .content {

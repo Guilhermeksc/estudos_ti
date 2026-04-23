@@ -2,8 +2,11 @@
   <header class="topbar">
     <div class="brand">GKDev</div>
     <nav class="menu">
-      <a routerLink="/login" routerLinkActive="active">Login</a>
-      <a routerLink="/areas" routerLinkActive="active">Áreas de Conhecimento</a>
+      <a *ngIf="!isAuthenticated()" routerLink="/login" routerLinkActive="active">Login</a>
+      <a *ngIf="isAuthenticated()" routerLink="/areas" routerLinkActive="active">Áreas de Conhecimento</a>
+      <button *ngIf="isAuthenticated()" type="button" class="logout-button" (click)="logout()">
+        Sair
+      </button>
     </nav>
   </header>
 
