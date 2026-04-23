@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { CemosAuthService } from '../../../core/services/cemos-auth.service';
 import { SessionService } from '../../../core/services/session.service';
@@ -18,6 +18,7 @@ export class LoginPageComponent {
   private readonly authService = inject(CemosAuthService);
   private readonly sessionService = inject(SessionService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   protected readonly form = this.formBuilder.nonNullable.group({
     username: ['', [Validators.required]],
@@ -51,6 +52,7 @@ export class LoginPageComponent {
         this.sessionService.setSession(response);
         this.successMessage = `Login realizado com sucesso. Bem-vindo, ${response.user?.name ?? response.user?.username ?? username}!`;
         this.loading = false;
+        void this.router.navigateByUrl(this.getInternalReturnUrl(), { replaceUrl: true });
       },
       error: (error: HttpErrorResponse) => {
         this.sessionService.clearSession();
@@ -83,10 +85,15 @@ export class LoginPageComponent {
   }
 
   private getReturnUrl(): string {
+    const returnUrl = this.getInternalReturnUrl();
+    return `${window.location.origin}${returnUrl}`;
+  }
+
+  private getInternalReturnUrl(): string {
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
     if (returnUrl?.startsWith('/') && !returnUrl.startsWith('//')) {
-      return `${window.location.origin}${returnUrl}`;
+      return returnUrl;
     }
-    return `${window.location.origin}/areas`;
+    return '/areas';
   }
 }
