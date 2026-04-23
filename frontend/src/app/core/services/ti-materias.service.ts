@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import { apiUrl } from '../utils/api-url';
 import { TiMateria, TiMateriaCard, TiMateriaCreatePayload } from '../../interfaces/ti.interface';
 
 @Injectable({ providedIn: 'root' })
 export class TiMateriasService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/api/ti/materias';
+  private readonly baseUrl = apiUrl('/api/ti/materias');
 
   listarCards(): Observable<TiMateriaCard[]> {
     return this.http.get<TiMateriaCard[]>(`${this.baseUrl}/cards`);

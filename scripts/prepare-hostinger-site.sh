@@ -36,6 +36,12 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
+# Opcional: proxy /api para o Node (requer mod_proxy no Apache).
+# O build de produção do Angular também usa apiBaseUrl absoluto em environment.prod.ts,
+# então o site funciona sem esta linha desde que CORS no API permita o domínio do site.
+# RewriteCond %{REQUEST_URI} ^/api/ [NC]
+# RewriteRule ^api/(.*)$ https://api.gkdevstudio.com/api/$1 [P,L]
+
 # Angular SPA fallback
 RewriteRule ^ index.html [L]
 HTACCESS

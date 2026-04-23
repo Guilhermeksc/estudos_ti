@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import { apiUrl } from '../utils/api-url';
+
 export interface AuthUser {
   sub: string;
   username: string;
@@ -57,22 +59,22 @@ export class CemosAuthService {
 
   login(username: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(
-      '/api/auth/login',
+      apiUrl('/api/auth/login'),
       { username, password },
       { withCredentials: true }
     );
   }
 
   refresh(): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>('/api/auth/refresh', {}, { withCredentials: true });
+    return this.http.post<LoginResponse>(apiUrl('/api/auth/refresh'), {}, { withCredentials: true });
   }
 
   logout(): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>('/api/auth/logout', {}, { withCredentials: true });
+    return this.http.post<{ message: string }>(apiUrl('/api/auth/logout'), {}, { withCredentials: true });
   }
 
   me(): Observable<{ user: AuthUser }> {
-    return this.http.get<{ user: AuthUser }>('/api/auth/me', { withCredentials: true });
+    return this.http.get<{ user: AuthUser }>(apiUrl('/api/auth/me'), { withCredentials: true });
   }
 
   private decodeJwtPayload(token: string): JwtPayload {
